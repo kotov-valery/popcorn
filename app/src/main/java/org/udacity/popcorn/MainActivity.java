@@ -1,21 +1,33 @@
 package org.udacity.popcorn;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
-import org.udacity.popcorn.data.MovieAdapter;
-import org.udacity.popcorn.data.TheMovieDB;
+import org.udacity.popcorn.moviedb.Movie;
+import org.udacity.popcorn.moviedb.MovieAdapter;
+import org.udacity.popcorn.moviedb.TheMovieDB;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static String TAG = "Popcorn" + MainActivity.class.getSimpleName();
+    private final static String TAG = MainActivity.class.getSimpleName();
 
     private RecyclerView mMoviesPreview;
     private MovieAdapter mAdapter;
+    private TheMovieDB mMovieDB;
+    private PosterClickListener mPosterListener;
+
+    private class PosterClickListener implements MovieAdapter.OnPosterClickListener {
+        @Override
+        public void onClick(Movie movie) {
+            Intent movieDetailsIntent = new Intent(MainActivity.this, MovieDetails.class);
+            movieDetailsIntent.putExtra(Intent.EXTRA_TEXT, movie.original_title);
+            startActivity(movieDetailsIntent);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +40,11 @@ public class MainActivity extends AppCompatActivity {
 
         mMoviesPreview.setLayoutManager(layoutManager);
 
-        mAdapter = new MovieAdapter();
+        mPosterListener = new PosterClickListener();
+        mAdapter = new MovieAdapter(mPosterListener);
         mMoviesPreview.setAdapter(mAdapter);
+
+        mMovieDB = new TheMovieDB(mAdapter);
+        mMovieDB.fetchPopularMovies();
     }
 }
