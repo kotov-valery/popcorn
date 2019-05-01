@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group
+        android:id="@+id/action_sort_by"
+        android:orderInCategory="1"
+        android:title="@string/sortByAction"
+        android:checkableBehavior="single">
+        app:showAsAction="ifRoom">
+        <item android:id="@+id/byPopularity"
+            android:checked="true"
+            android:title="@string/sortByPopularity" />
+        <item android:id="@+id/byVotes"
+            android:title="@string/sortByVotes" />
+    </group>
+</menu>

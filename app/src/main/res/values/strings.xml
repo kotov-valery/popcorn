@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">popcorn</string>
+    <string name="app_name">Popcorn</string>
+    <string name="sortByAction">Sort by</string>
+    <string name="sortByPopularity">by popularity</string>
+    <string name="sortByVotes">by top rated</string>
+    <string name="posterPreviewDesc">Movie poster preview</string>
+    <string name="yearIsMissingError">Error is not known</string>
+    <string name="apiKeyIsMissingError">API key is not present. Please provide one</string>
 </resources>

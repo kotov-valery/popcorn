@@ -14,23 +14,44 @@ public class TheMovieDB {
 
     private final static String API_BASE_URL = "https://api.themoviedb.org";
     private final static String API_VERSION = "3";
-    private final static String API_KEY_VALUE = "ADD YOUR KEY HERE";
 
-    private MovieAdapter mAdapter;
+    //TODO: add your api key here
+    private final static String API_KEY_VALUE = "";
+
+    public enum SORT_BY {
+        BY_POPULARITY,
+        BY_TOP_RATED
+    }
+
+    private final MovieAdapter mAdapter;
 
     public TheMovieDB(MovieAdapter adapter) {
         mAdapter = adapter;
     }
 
-    public final void fetchPopularMovies() {
+    public class ApiNotFoundException extends Exception {}
+
+    public final void fetchMoviesAndSortBy(SORT_BY sortBy) throws ApiNotFoundException {
+        if (API_KEY_VALUE.isEmpty()) {
+            throw new ApiNotFoundException();
+        }
+
+        mAdapter.setMovies(null);
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(API_BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        TheMovieDBService.TheMovieDBAPI service = retrofit.create(TheMovieDBService.TheMovieDBAPI.class);
+        TheMovieDBService.TheMovieDBAPI service =
+                retrofit.create(TheMovieDBService.TheMovieDBAPI.class);
 
-        Call<Movies> call = service.getPopularMovies(API_VERSION, API_KEY_VALUE);
+        Call<Movies> call = service.fetchMovies(
+                API_VERSION,
+                sortBy == SORT_BY.BY_POPULARITY ?
+                        TheMovieDBService.SORT_BY_POPULARITY :
+                        TheMovieDBService.SORT_BY_VOTES,
+                API_KEY_VALUE);
         call.enqueue(new Callback<Movies>() {
             @Override
             public void onResponse(Call<Movies> call, Response<Movies> response) {
@@ -49,4 +70,6 @@ public class TheMovieDB {
             }
         });
     }
+
+
 }

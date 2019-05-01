@@ -2,22 +2,18 @@ package org.udacity.popcorn.moviedb;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Picasso;
-
 import org.udacity.popcorn.R;
+import org.udacity.popcorn.utility.ImageLoader;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
 
-    private static final String TAG = MovieAdapter.class.getSimpleName();
-
     private Movies mMovies;
-    private OnPosterClickListener mListener;
+    private final OnPosterClickListener mListener;
 
     public interface OnPosterClickListener {
         void onClick(Movie movie);
@@ -30,9 +26,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     public class MovieViewHolder extends RecyclerView.ViewHolder
         implements View.OnClickListener
     {
-        private ImageView mImageView;
+        private final ImageView mImageView;
 
-        public MovieViewHolder(View view) {
+        MovieViewHolder(View view) {
             super(view);
             mImageView = view.findViewById(R.id.img_movie_thumbnail);
             view.setOnClickListener(this);
@@ -56,12 +52,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder movieViewHolder, int i) {
-        String url = "http://image.tmdb.org/t/p/";
-        url += "/w500";
-        url += mMovies.get(i).poster_path;
-        Picasso.get()
-                .load(url)
-                .into(movieViewHolder.mImageView);
+        ImageLoader.fetchPosterIntoView(mMovies.get(i).poster_path, movieViewHolder.mImageView);
     }
 
     @Override

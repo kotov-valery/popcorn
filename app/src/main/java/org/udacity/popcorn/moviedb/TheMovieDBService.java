@@ -5,19 +5,19 @@ import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
-public final class TheMovieDBService {
-
-    private final static String DISCOVER_REQUEST = "discover/movie";
-    private final static String POPULAR_MOVIES_REQUEST = "sort_by=popularity.desc";
+final class TheMovieDBService {
 
     private final static String API_KEY_TAG = "api_key";
+    private final static String API_SORT_BY_TAG = "sort_by";
 
-    private final static String PREVIEW_SIZE = "w185";
+    public final static String SORT_BY_POPULARITY = "popular";
+    public final static String SORT_BY_VOTES = "top_rated";
 
     public interface TheMovieDBAPI {
-        @GET("{version}/discover/movie?sort_by=popularity.desc")
-        Call<Movies> getPopularMovies(
+        @GET("{version}/movie/{" + API_SORT_BY_TAG + "}")
+        Call<Movies> fetchMovies(
                 @Path("version") String version,
+                @Path(API_SORT_BY_TAG) String sortBy,
                 @Query(API_KEY_TAG) String apiKey
         );
     }

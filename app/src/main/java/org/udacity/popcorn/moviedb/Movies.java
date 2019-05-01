@@ -4,9 +4,9 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class Movies {
+class Movies {
     @SerializedName("results")
-    public List<Movie> list;
+    private List<Movie> list;
 
     public final int count() {
         return list.size();
