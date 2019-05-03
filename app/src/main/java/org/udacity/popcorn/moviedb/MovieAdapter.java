@@ -1,5 +1,6 @@
 package org.udacity.popcorn.moviedb;
 
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,10 +11,14 @@ import android.widget.ImageView;
 import org.udacity.popcorn.R;
 import org.udacity.popcorn.utility.ImageLoader;
 
+import java.util.ArrayList;
+
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
 
     private Movies mMovies;
     private final OnPosterClickListener mListener;
+
+    private static final String MOVIES_STATE = "MoviesState";
 
     public interface OnPosterClickListener {
         void onClick(Movie movie);
@@ -62,6 +67,20 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     public void setMovies(Movies movies) {
         mMovies = movies;
+        notifyDataSetChanged();
+    }
+
+    public boolean hasSavedState(Bundle state) {
+        return state.containsKey(MOVIES_STATE);
+    }
+
+    public void saveStateTo(Bundle state) {
+        state.putParcelableArrayList(MOVIES_STATE, mMovies.list);
+    }
+
+    public void restoreStateFrom(Bundle state) {
+        ArrayList<Movie> list = state.getParcelableArrayList(MOVIES_STATE);
+        mMovies = new Movies(list);
         notifyDataSetChanged();
     }
 }

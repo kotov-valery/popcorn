@@ -18,10 +18,8 @@ public class TheMovieDB {
     //TODO: add your api key here
     private final static String API_KEY_VALUE = "";
 
-    public enum SORT_BY {
-        BY_POPULARITY,
-        BY_TOP_RATED
-    }
+    public static final int SORT_BY_POPULARITY = 1;
+    public static final int SORT_BY_TOP_RATED = 2;
 
     private final MovieAdapter mAdapter;
 
@@ -31,7 +29,7 @@ public class TheMovieDB {
 
     public class ApiNotFoundException extends Exception {}
 
-    public final void fetchMoviesAndSortBy(SORT_BY sortBy) throws ApiNotFoundException {
+    public final void fetchMoviesAndSortBy(int sortBy) throws ApiNotFoundException {
         if (API_KEY_VALUE.isEmpty()) {
             throw new ApiNotFoundException();
         }
@@ -48,7 +46,7 @@ public class TheMovieDB {
 
         Call<Movies> call = service.fetchMovies(
                 API_VERSION,
-                sortBy == SORT_BY.BY_POPULARITY ?
+                sortBy == SORT_BY_POPULARITY ?
                         TheMovieDBService.SORT_BY_POPULARITY :
                         TheMovieDBService.SORT_BY_VOTES,
                 API_KEY_VALUE);

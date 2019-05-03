@@ -4,7 +4,7 @@
     android:layout_height="wrap_content">
     <ImageView
         android:id="@+id/img_movie_thumbnail"
-        android:paddingBottom="8dp"
+        android:paddingBottom="@dimen/common_padding"
         android:contentDescription="@string/posterPreviewDesc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

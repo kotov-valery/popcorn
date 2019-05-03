@@ -2,11 +2,15 @@ package org.udacity.popcorn.moviedb;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
+import java.util.ArrayList;
 
 class Movies {
     @SerializedName("results")
-    private List<Movie> list;
+    public ArrayList<Movie> list;
+
+    public Movies(ArrayList<Movie> vList) {
+        list = vList;
+    }
 
     public final int count() {
         return list.size();

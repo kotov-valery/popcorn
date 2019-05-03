@@ -8,7 +8,7 @@ import org.udacity.popcorn.R;
 
 public class ImageLoader {
 
-    private static final String BASE_URL = "http://image.tmdb.org/t/p";
+    private static final String BASE_URL = "https://image.tmdb.org/t/p";
     private static final String RESOLUTION = "w500";
 
     public static void fetchPosterIntoView(String posterPath, ImageView view) {
