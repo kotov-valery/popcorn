@@ -1,8 +1,8 @@
 package org.udacity.popcorn.moviedb;
 
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +16,8 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
     private ArrayList<Review> mReviews;
     private OnReviewClickListener mListener;
+
+    private static final String REVIEWS_STATE = "ReviewsState";
 
     public interface OnReviewClickListener {
         void onClick(Review review);
@@ -69,6 +71,19 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewView
 
     public void setReviews(Reviews reviews) {
         mReviews = reviews.list;
+        notifyDataSetChanged();
+    }
+
+    public boolean hasSavedState(Bundle state) {
+        return state.containsKey(REVIEWS_STATE);
+    }
+
+    public void saveStateTo(Bundle state) {
+        state.putParcelableArrayList(REVIEWS_STATE, mReviews);
+    }
+
+    public void restoreStateFrom(Bundle state) {
+        mReviews = state.getParcelableArrayList(REVIEWS_STATE);
         notifyDataSetChanged();
     }
 }

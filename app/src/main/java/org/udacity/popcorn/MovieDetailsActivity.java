@@ -84,19 +84,67 @@ public class MovieDetailsActivity extends AppCompatActivity {
 
         mDb = MovieDatabase.getInstance(getApplicationContext());
 
-        Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(MOVIE_OBJECT)) {
-            String movieJSON = intent.getStringExtra(MOVIE_OBJECT);
-            Movie movie = (new Gson()).fromJson(movieJSON, Movie.class);
+        Movie movie = null;
+        boolean reviewsWereRestored = false;
+        boolean trailersWereRestored = false;
+        if (savedInstanceState != null) {
+            if(savedInstanceState.containsKey(MOVIE_OBJECT)) {
+                movie = savedInstanceState.getParcelable(MOVIE_OBJECT);
+            }
+            if (mTrailerAdapter.hasSavedState(savedInstanceState)) {
+                mTrailerAdapter.restoreStateFrom(savedInstanceState);
+                trailersWereRestored = true;
+            }
+            if (mReviewAdapter.hasSavedState(savedInstanceState)) {
+                mReviewAdapter.restoreStateFrom(savedInstanceState);
+                reviewsWereRestored = true;
+            }
+       } else {
+            Intent intent = getIntent();
+            if (intent != null && intent.hasExtra(MOVIE_OBJECT)) {
+                String movieJSON = intent.getStringExtra(MOVIE_OBJECT);
+                movie = (new Gson()).fromJson(movieJSON, Movie.class);
+           }
+        }
 
-            mMovieId = movie.id;
-            fillInDetails(movie);
+        if (movie == null) {
+            Log.e(TAG, "Was not able to retrieve movie object");
+            return;
+        }
 
-            subscribeToDbChanges(mMovieId);
+        mMovieId = movie.id;
+        fillInDetails(movie);
 
-            TheMovieDB.fetchMovieReviews(mMovieId, mReviewAdapter);
+        subscribeToDbChanges(mMovieId);
+
+        if (!trailersWereRestored) {
             TheMovieDB.fetchMovieTrailers(mMovieId, mTrailerAdapter);
         }
+
+        if (!reviewsWereRestored) {
+            TheMovieDB.fetchMovieReviews(mMovieId, mReviewAdapter);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(MOVIE_OBJECT, toMovie());
+        mReviewAdapter.saveStateTo(outState);
+        mTrailerAdapter.saveStateTo(outState);
+        super.onSaveInstanceState(outState);
+    }
+
+    private Movie toMovie() {
+        String title = mOriginalTitle.getText().toString();
+        String original_title = title;
+        String overview = mMovieOverview.getText().toString();
+        String release_date = mReleaseDate.getText().toString();
+        String vote_average = mAverageRate.getText().toString();
+        int isFavorite = mIsFavoriteMovie ? Movie.FAVORITE_MOVIE
+                : Movie.NOT_A_FAVORITE_MOVIE;
+
+        return new Movie(mMovieId, title, mPosterUrl, original_title,
+                overview, release_date, vote_average, isFavorite);
     }
 
     private void subscribeToDbChanges(final int movieId) {
@@ -127,6 +175,8 @@ public class MovieDetailsActivity extends AppCompatActivity {
     }
 
     private void fillInDetails(Movie movie) {
+        if (movie == null) return;
+
         mPosterUrl = movie.poster_path;
         ImageLoader.fetchPosterIntoView(movie.poster_path, mPosterImage);
 
