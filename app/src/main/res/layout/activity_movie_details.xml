@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     tools:context=".MovieDetailsActivity">
 
     <LinearLayout
@@ -14,7 +14,7 @@
         <TextView
             android:id="@+id/tv_movie_original_title"
             android:padding="@dimen/common_padding"
-            android:textSize="@dimen/title_text_size"
+            style="@style/TextAppearance.AppCompat.Headline"
             android:textColor="@color/colorWhite"
             android:background="@color/colorPrimary"
             android:layout_width="match_parent"
@@ -41,30 +41,85 @@
 
                 <TextView
                     android:id="@+id/tv_release_date"
-                    android:textSize="@dimen/release_date_text_size"
                     android:textStyle="bold"
                     android:textAlignment="center"
+                    style="@style/TextAppearance.AppCompat.Display1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
                 <TextView
                     android:id="@+id/tv_average_vote"
-                    android:textSize="@dimen/average_vote_text_size"
                     android:textStyle="italic"
+                    style="@style/TextAppearance.AppCompat.Medium"
                     android:textAlignment="center"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
+                
+                <Button
+                    android:id="@+id/mark_movie_as_favorite_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:padding="8dp"
+                    android:text="@string/markAsFavorite"
+                    style="@style/TextAppearance.AppCompat.Button"
+                    android:background="@color/colorPrimaryLight"
+                    android:onClick="onAddMovieToFavoriets" />
 
             </LinearLayout>
         </LinearLayout>
 
         <TextView
             android:id="@+id/tv_movie_overview"
-            android:textStyle="normal"
-            android:textSize="@dimen/overview_text_size"
+            style="@style/TextAppearance.AppCompat.Body1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-    </LinearLayout>
+        <View style="@style/dividerStyle" />
 
+        <TextView
+            android:id="@+id/tv_trailers_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/trailersLabel"
+            style="@style/TextAppearance.AppCompat.Headline"/>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <include
+                android:id="@+id/trailer_placeholder1"
+                layout="@layout/trailer_item_layout" />
+
+            <include
+                android:id="@+id/trailer_placeholder2"
+                layout="@layout/trailer_item_layout" />
+
+            <include
+                android:id="@+id/trailer_placeholder3"
+                layout="@layout/trailer_item_layout" />
+
+        </LinearLayout>
+
+        <View style="@style/dividerStyle" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/reviewsLabel"
+            style="@style/TextAppearance.AppCompat.Headline" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/reviews_list"
+            android:scrollbars="horizontal"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+
+
+    </LinearLayout>
 </ScrollView>

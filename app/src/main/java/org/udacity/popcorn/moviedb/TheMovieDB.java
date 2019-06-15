@@ -1,5 +1,6 @@
 package org.udacity.popcorn.moviedb;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import retrofit2.Call;
@@ -69,5 +70,67 @@ public class TheMovieDB {
         });
     }
 
+    public static void fetchMovieTrailers(int movieId, @NonNull final TrailerAdapter adapter) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(API_BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
 
+        TheMovieDBService.TheMovieDBAPI service =
+                retrofit.create(TheMovieDBService.TheMovieDBAPI.class);
+
+        Call<Trailers> call = service.fetchTailers(
+                API_VERSION,
+                String.valueOf(movieId),
+                API_KEY_VALUE);
+        call.enqueue(new Callback<Trailers>() {
+            @Override
+            public void onResponse(Call<Trailers> call, Response<Trailers> response) {
+                try {
+                    Trailers trailers = response.body();
+                    adapter.updateInfo(trailers);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Trailers> call, Throwable t) {
+                Log.e(TAG, "Failed to request movie db API: " + t.getMessage());
+                t.getStackTrace();
+            }
+        });
+    }
+
+    public static void fetchMovieReviews(int movieId, @NonNull final ReviewAdapter adapter) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(API_BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        TheMovieDBService.TheMovieDBAPI service =
+                retrofit.create(TheMovieDBService.TheMovieDBAPI.class);
+
+        Call<Reviews> call = service.fetchReview(
+                API_VERSION,
+                String.valueOf(movieId),
+                API_KEY_VALUE);
+        call.enqueue(new Callback<Reviews>() {
+            @Override
+            public void onResponse(Call<Reviews> call, Response<Reviews> response) {
+                try {
+                    Reviews reviews = response.body();
+                    adapter.setReviews(reviews);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Reviews> call, Throwable t) {
+                Log.e(TAG, "Failed to request movie db API: " + t.getMessage());
+                t.getStackTrace();
+            }
+        });
+    }
 }
