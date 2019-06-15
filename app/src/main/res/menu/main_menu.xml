@@ -12,5 +12,7 @@
             android:title="@string/sortByPopularity" />
         <item android:id="@+id/byVotes"
             android:title="@string/sortByVotes" />
+        <item android:id="@+id/byUserFavorites"
+            android:title="@string/sortByFavorites" />
     </group>
 </menu>

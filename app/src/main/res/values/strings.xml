@@ -4,6 +4,7 @@
     <string name="sortByAction">Sort by</string>
     <string name="sortByPopularity">by popularity</string>
     <string name="sortByVotes">by top rated</string>
+    <string name="sortByFavorites">by user favorites</string>
 
     <string name="posterPreviewDesc">Movie poster preview</string>
 
@@ -11,7 +12,7 @@
     <string name="apiKeyIsMissingError">API key is not present. Please provide one</string>
 
     <string name="markAsFavorite">Mark as favorite</string>
-
+    <string name="removeFromFavorites">Remove from favorites</string>
 
     <string name="trailersLabel">Trailers</string>
     <string name="reviewsLabel">Reviews</string>

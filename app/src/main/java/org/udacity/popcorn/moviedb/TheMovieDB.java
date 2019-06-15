@@ -21,6 +21,7 @@ public class TheMovieDB {
 
     public static final int SORT_BY_POPULARITY = 1;
     public static final int SORT_BY_TOP_RATED = 2;
+    public static final int SORT_BY_USER_FAVOURITES = 3;
 
     private final MovieAdapter mAdapter;
 
@@ -35,39 +36,42 @@ public class TheMovieDB {
             throw new ApiNotFoundException();
         }
 
-        mAdapter.setMovies(null);
+        mAdapter.resetMovies();
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(API_BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+        if (sortBy == SORT_BY_USER_FAVOURITES) {
+        } else {
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(API_BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
 
-        TheMovieDBService.TheMovieDBAPI service =
-                retrofit.create(TheMovieDBService.TheMovieDBAPI.class);
+            TheMovieDBService.TheMovieDBAPI service =
+                    retrofit.create(TheMovieDBService.TheMovieDBAPI.class);
 
-        Call<Movies> call = service.fetchMovies(
-                API_VERSION,
-                sortBy == SORT_BY_POPULARITY ?
-                        TheMovieDBService.SORT_BY_POPULARITY :
-                        TheMovieDBService.SORT_BY_VOTES,
-                API_KEY_VALUE);
-        call.enqueue(new Callback<Movies>() {
-            @Override
-            public void onResponse(Call<Movies> call, Response<Movies> response) {
-                try {
-                    Movies movies = response.body();
-                    mAdapter.setMovies(movies);
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
+            Call<Movies> call = service.fetchMovies(
+                    API_VERSION,
+                    sortBy == SORT_BY_POPULARITY ?
+                            TheMovieDBService.SORT_BY_POPULARITY :
+                            TheMovieDBService.SORT_BY_VOTES,
+                    API_KEY_VALUE);
+            call.enqueue(new Callback<Movies>() {
+                @Override
+                public void onResponse(Call<Movies> call, Response<Movies> response) {
+                    try {
+                        Movies movies = response.body();
+                        mAdapter.setMovies(movies);
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<Movies> call, Throwable t) {
-                Log.e(TAG, "Failed to request movie db API: " + t.getMessage());
-                t.getStackTrace();
-            }
-        });
+                @Override
+                public void onFailure(Call<Movies> call, Throwable t) {
+                    Log.e(TAG, "Failed to request movie db API: " + t.getMessage());
+                    t.getStackTrace();
+                }
+            });
+        }
     }
 
     public static void fetchMovieTrailers(int movieId, @NonNull final TrailerAdapter adapter) {

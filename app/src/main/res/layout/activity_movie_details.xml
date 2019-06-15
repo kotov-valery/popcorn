@@ -65,7 +65,7 @@
                     android:text="@string/markAsFavorite"
                     style="@style/TextAppearance.AppCompat.Button"
                     android:background="@color/colorPrimaryLight"
-                    android:onClick="onAddMovieToFavoriets" />
+                    android:onClick="triggerAddOrRemoveToFavorites" />
 
             </LinearLayout>
         </LinearLayout>

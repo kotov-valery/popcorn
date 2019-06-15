@@ -1,29 +1,41 @@
 package org.udacity.popcorn;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 
+import org.udacity.popcorn.favorites.MovieDatabase;
+import org.udacity.popcorn.favorites.MoviesViewModel;
 import org.udacity.popcorn.moviedb.Movie;
 import org.udacity.popcorn.moviedb.MovieAdapter;
 import org.udacity.popcorn.moviedb.TheMovieDB;
 
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private TheMovieDB mMovieDB;
     private MovieAdapter mAdapter;
 
     private static final String SORT_MODE = "sortMode";
     private int mSortMode;
+
+    private MovieDatabase mMovieDatabase;
 
     private class PosterClickListener implements MovieAdapter.OnPosterClickListener {
         @Override
@@ -63,20 +75,42 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState != null && mAdapter.hasSavedState(savedInstanceState)) {
             mAdapter.restoreStateFrom(savedInstanceState);
         } else {
-            try {
-                mMovieDB.fetchMoviesAndSortBy(mSortMode);
-            } catch (TheMovieDB.ApiNotFoundException e) {
-                showMissingApiKeyToast();
+            if (mSortMode == TheMovieDB.SORT_BY_USER_FAVOURITES) {
+                mMovieDatabase = MovieDatabase.getInstance(getApplicationContext());
+                setupViewModel();
+            } else {
+                try {
+                    mMovieDB.fetchMoviesAndSortBy(mSortMode);
+                } catch (TheMovieDB.ApiNotFoundException e) {
+                    showMissingApiKeyToast();
+                }
             }
         }
     }
 
+    private void setupViewModel() {
+        MoviesViewModel viewModel = ViewModelProviders.of(this).get(MoviesViewModel.class);
+        viewModel.getMovies().observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(@Nullable List<Movie> movies) {
+                Log.d(TAG, "Updating list of tasks from LiveData in ViewModel");
+                mAdapter.setMovies(movies);
+            }
+        });
+    }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
-        MenuItem activeItem =
-                menu.findItem(mSortMode == TheMovieDB.SORT_BY_TOP_RATED ?
-                        R.id.byVotes : R.id.byPopularity);
+        MenuItem activeItem;
+        if (mSortMode == TheMovieDB.SORT_BY_USER_FAVOURITES) {
+            activeItem = menu.findItem(R.id.byUserFavorites);
+        } else if (mSortMode == TheMovieDB.SORT_BY_TOP_RATED) {
+            activeItem = menu.findItem(R.id.byVotes);
+        } else {
+            activeItem = menu.findItem(R.id.byPopularity);
+        }
         activeItem.setChecked(true);
         return true;
     }
@@ -102,6 +136,11 @@ public class MainActivity extends AppCompatActivity {
                 showMissingApiKeyToast();
             }
             return true;
+        } else if (id == R.id.byUserFavorites && !item.isChecked()) {
+            item.setChecked(true);
+            saveUserPreferences(TheMovieDB.SORT_BY_USER_FAVOURITES);
+            mMovieDatabase = MovieDatabase.getInstance(getApplicationContext());
+            setupViewModel();
         }
         return super.onOptionsItemSelected(item);
     }

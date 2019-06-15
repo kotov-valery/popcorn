@@ -12,10 +12,11 @@ import org.udacity.popcorn.R;
 import org.udacity.popcorn.utility.ImageLoader;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
 
-    private Movies mMovies;
+    private ArrayList<Movie> mMovies;
     private final OnPosterClickListener mListener;
 
     private static final String MOVIES_STATE = "MoviesState";
@@ -62,11 +63,21 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     @Override
     public int getItemCount() {
-        return mMovies == null ? 0 : mMovies.count();
+        return mMovies == null ? 0 : mMovies.size();
     }
 
     public void setMovies(Movies movies) {
-        mMovies = movies;
+        mMovies = movies.list;
+        notifyDataSetChanged();
+    }
+
+    public void setMovies(List<Movie> movies) {
+        mMovies = new ArrayList<>(movies);
+        notifyDataSetChanged();
+    }
+
+    public void resetMovies() {
+        mMovies = null;
         notifyDataSetChanged();
     }
 
@@ -75,12 +86,11 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     }
 
     public void saveStateTo(Bundle state) {
-        state.putParcelableArrayList(MOVIES_STATE, mMovies.list);
+        state.putParcelableArrayList(MOVIES_STATE, mMovies);
     }
 
     public void restoreStateFrom(Bundle state) {
-        ArrayList<Movie> list = state.getParcelableArrayList(MOVIES_STATE);
-        mMovies = new Movies(list);
+        mMovies = state.getParcelableArrayList(MOVIES_STATE);
         notifyDataSetChanged();
     }
 }

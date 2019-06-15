@@ -1,9 +1,15 @@
 package org.udacity.popcorn.moviedb;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+@Entity(tableName = "movie_entity")
 public class Movie implements Parcelable {
+    @PrimaryKey
     public int id;
     public String title;
     public String poster_path;
@@ -12,18 +18,26 @@ public class Movie implements Parcelable {
     public String release_date;
     public String vote_average;
 
-    public Movie(int vId, String vTitle, String vPoster, String vOriginalTitle,
-                 String vOverview, String vReleaseDate, String vVoteAverage)
+    @ColumnInfo(name = "is_favorite")
+    public int isFavorite;
+
+    public static final int NOT_A_FAVORITE_MOVIE = 0;
+    public static final int FAVORITE_MOVIE = 1;
+
+    public Movie(int id, String title, String poster_path, String original_title,
+                 String overview, String release_date, String vote_average, int isFavorite)
     {
-        id = vId;
-        title = vTitle;
-        poster_path = vPoster;
-        original_title = vOriginalTitle;
-        overview = vOverview;
-        release_date = vReleaseDate;
-        vote_average = vVoteAverage;
+        this.id = id;
+        this.title = title;
+        this.poster_path = poster_path;
+        this.original_title = original_title;
+        this.overview = overview;
+        this.release_date = release_date;
+        this.vote_average = vote_average;
+        this.isFavorite = isFavorite;
     }
 
+    @Ignore
     public Movie(Parcel parcel) {
         id = parcel.readInt();
         title = parcel.readString();
@@ -32,6 +46,7 @@ public class Movie implements Parcelable {
         overview = parcel.readString();
         release_date = parcel.readString();
         vote_average = parcel.readString();
+        isFavorite = parcel.readInt();
     }
 
     @Override
@@ -46,6 +61,7 @@ public class Movie implements Parcelable {
         dest.writeString(overview);
         dest.writeString(release_date);
         dest.writeString(vote_average);
+        dest.writeInt(isFavorite);
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
