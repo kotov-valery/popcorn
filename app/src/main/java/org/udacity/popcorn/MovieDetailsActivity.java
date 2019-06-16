@@ -1,9 +1,9 @@
 package org.udacity.popcorn;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -12,12 +12,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 
+import org.udacity.popcorn.databinding.ActivityMovieDetailsBinding;
 import org.udacity.popcorn.favorites.DetailsViewModel;
 import org.udacity.popcorn.favorites.MovieDatabase;
 import org.udacity.popcorn.moviedb.Movie;
@@ -28,25 +27,24 @@ import org.udacity.popcorn.moviedb.TrailerAdapter;
 import org.udacity.popcorn.utility.AppExecutors;
 import org.udacity.popcorn.utility.ImageLoader;
 
-public class MovieDetailsActivity extends AppCompatActivity {
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
+public class MovieDetailsActivity extends AppCompatActivity {
     private static final String TAG = MovieDetailsActivity.class.getSimpleName();
 
     private int mMovieId;
-    private TextView mOriginalTitle;
-    private ImageView mPosterImage;
-    private TextView mReleaseDate;
-    private TextView mAverageRate;
-    private TextView mMovieOverview;
 
-    private Button mMarkAsFavorite;
+    private ActivityMovieDetailsBinding mBinding;
 
-    private RecyclerView mReviewsList;
     private ReviewAdapter mReviewAdapter;
-
     private TrailerAdapter mTrailerAdapter;
 
     private String mPosterUrl;
+    private String mOriginalTitle;
+    private String mOriginalReleaseDate;
     private boolean mIsFavoriteMovie;
 
     public static final String MOVIE_OBJECT = "MovieObject";
@@ -58,21 +56,14 @@ public class MovieDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_details);
 
-        mOriginalTitle = findViewById(R.id.tv_movie_original_title);
-        mPosterImage = findViewById(R.id.img_poster_preview);
-        mReleaseDate = findViewById(R.id.tv_release_date);
-        mAverageRate = findViewById(R.id.tv_average_vote);
-        mMovieOverview = findViewById(R.id.tv_movie_overview);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_movie_details);
 
-        mMarkAsFavorite = findViewById(R.id.mark_movie_as_favorite_btn);
-
-        mReviewsList = findViewById(R.id.reviews_list);
         RecyclerView.LayoutManager reviewsLayoutManager =
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        mReviewsList.setLayoutManager(reviewsLayoutManager);
+        mBinding.reviewsList.setLayoutManager(reviewsLayoutManager);
 
         mReviewAdapter = new ReviewAdapter(new OpenReviewInABrowser());
-        mReviewsList.setAdapter(mReviewAdapter);
+        mBinding.reviewsList.setAdapter(mReviewAdapter);
 
         TextView trailersLabel = findViewById(R.id.tv_trailers_label);
         View trailer1 = findViewById(R.id.trailer_placeholder1);
@@ -113,7 +104,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         }
 
         mMovieId = movie.id;
-        fillInDetails(movie);
+        fromMovie(movie);
 
         subscribeToDbChanges(mMovieId);
 
@@ -132,19 +123,6 @@ public class MovieDetailsActivity extends AppCompatActivity {
         mReviewAdapter.saveStateTo(outState);
         mTrailerAdapter.saveStateTo(outState);
         super.onSaveInstanceState(outState);
-    }
-
-    private Movie toMovie() {
-        String title = mOriginalTitle.getText().toString();
-        String original_title = title;
-        String overview = mMovieOverview.getText().toString();
-        String release_date = mReleaseDate.getText().toString();
-        String vote_average = mAverageRate.getText().toString();
-        int isFavorite = mIsFavoriteMovie ? Movie.FAVORITE_MOVIE
-                : Movie.NOT_A_FAVORITE_MOVIE;
-
-        return new Movie(mMovieId, title, mPosterUrl, original_title,
-                overview, release_date, vote_average, isFavorite);
     }
 
     private void subscribeToDbChanges(final int movieId) {
@@ -170,46 +148,74 @@ public class MovieDetailsActivity extends AppCompatActivity {
             mIsFavoriteMovie = (movie.isFavorite == Movie.FAVORITE_MOVIE);
         }
 
-        mMarkAsFavorite.setText(mIsFavoriteMovie ? getString(R.string.removeFromFavorites) :
-                getString(R.string.markAsFavorite));
+        mBinding.markMovieAsFavoriteBtn.
+                setText(mIsFavoriteMovie ?
+                        getString(R.string.removeFromFavorites) :
+                        getString(R.string.markAsFavorite));
     }
 
-    private void fillInDetails(Movie movie) {
+    private Movie toMovie() {
+        String original_title = mOriginalTitle;
+        String title = original_title;
+        String overview = mBinding.tvMovieOverview.getText().toString();
+        String release_date = mOriginalReleaseDate;
+
+        String vote_average = "";
+        String[] splitVote = mBinding.tvAverageVote
+                .getText().toString().split("/");
+        if (splitVote.length > 0) {
+            vote_average = splitVote[0];
+        }
+
+        int isFavorite = mIsFavoriteMovie ? Movie.FAVORITE_MOVIE
+                : Movie.NOT_A_FAVORITE_MOVIE;
+
+        return new Movie(mMovieId, title, mPosterUrl, original_title,
+                overview, release_date, vote_average, isFavorite);
+    }
+
+
+    private void fromMovie(Movie movie) {
         if (movie == null) return;
-
         mPosterUrl = movie.poster_path;
-        ImageLoader.fetchPosterIntoView(movie.poster_path, mPosterImage);
+        mOriginalTitle = movie.original_title;
+        mOriginalReleaseDate = movie.release_date;
 
-        mOriginalTitle.setText(movie.original_title);
-        mMovieOverview.setText(movie.overview);
+        ImageLoader.fetchPosterIntoView(movie.poster_path, mBinding.imgPosterPreview);
+
+        String title = mOriginalTitle;
+        String[] splitReleaseDate = movie.release_date.split("-");
+        if (splitReleaseDate.length > 0) {
+            title += " (" + splitReleaseDate[0] + ")";
+        }
+        mBinding.tvMovieOriginalTitle.setText(title);
+
+        mBinding.tvMovieOverview.setText(movie.overview);
 
         if (movie.vote_average != null && !movie.vote_average.isEmpty()) {
             String averageVote = movie.vote_average;
             averageVote += "/10";
-            mAverageRate.setText(averageVote);
+            mBinding.tvAverageVote.setText(averageVote);
         }
 
-        String releaseYear;
-        String[] splitRelease = movie.release_date.split("-");
-        if (splitRelease.length > 0) {
-            releaseYear = splitRelease[0];
-        } else {
-            releaseYear = getString(R.string.yearIsMissingError);
+        DateFormat dateFormat = new SimpleDateFormat(getString(R.string.releaseDateFormat));
+        try {
+            Date releaseDate = dateFormat.parse(movie.release_date);
+            mBinding.tvReleaseDate.setText(DateFormat
+                    .getDateInstance(DateFormat.MEDIUM)
+                    .format(releaseDate));
+        } catch (ParseException e) {
+            Log.e(TAG, "Could not parse release date: " + movie.release_date);
+            mBinding.tvReleaseDate.setText(getString(R.string.yearIsMissingError));
         }
-        mReleaseDate.setText(releaseYear);
     }
 
     public void triggerAddOrRemoveToFavorites(View view) {
-        String title = mOriginalTitle.getText().toString();
-        String original_title = title;
-        String overview = mMovieOverview.getText().toString();
-        String release_date = mReleaseDate.getText().toString();
-        String vote_average = mAverageRate.getText().toString();
+        final Movie movieInfo = toMovie();
+
         int isFavorite = mIsFavoriteMovie ? Movie.NOT_A_FAVORITE_MOVIE
                 : Movie.FAVORITE_MOVIE;
-
-        final Movie movieInfo = new Movie(mMovieId, title, mPosterUrl, original_title,
-                overview, release_date, vote_average, isFavorite);
+        movieInfo.isFavorite = isFavorite;
 
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override

@@ -8,7 +8,9 @@
 
     <string name="posterPreviewDesc">Movie poster preview</string>
 
-    <string name="yearIsMissingError">Error is not known</string>
+    <string name="releaseDateFormat">YYYY-MM-dd</string>
+    <string name="yearIsMissingError">Year is not known</string>
+
     <string name="apiKeyIsMissingError">API key is not present. Please provide one</string>
 
     <string name="markAsFavorite">Mark as favorite</string>

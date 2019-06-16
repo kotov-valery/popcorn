@@ -26,4 +26,16 @@
        <item name="android:layout_marginBottom">8dp</item>
    </style>
 
+    <style name="releaseDateStyle" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:textSize">24dp</item>
+    </style>
+
+    <style name="movieTitleHeadline" parent="TextAppearance.AppCompat.Headline">
+        <item name="android:textSize">28dp</item>
+        <item name="android:textColor">@color/colorWhite</item>
+        <item name="android:background">@color/colorPrimary</item>
+    </style>
+
 </resources>
